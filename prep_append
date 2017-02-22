@@ -1,0 +1,48 @@
+rm -r modules/module-impl/agent
+# there is forked mockito, which contains bundled cglib and asm
+rm -r api/mockito2/src/main/java/org/powermock/api/mockito/repackaged/{cglib,asm}
+
+find -name '*.java' | xargs sed -i 's/org\.mockito\.cglib/net.sf.cglib/g;
+                                    s/org\.powermock\.api\.mockito\.repackaged\.cglib/net.cf.cglib/g;
+                                    s/org\.powermock\.api\.mockito\.repackaged\.asm/org.objectweb.asm/g'
+
+# Assumes different JUnit version
+rm modules/module-impl/junit4-common/src/test/java/org/powermock/modules/junit4/common/internal/impl/JUnitVersionTest.java
+
+# StackOverflow in koji
+sed -i '/shouldLoadClassAndOverrideMethodGreaterThanJvmLimit/i@org.junit.Ignore' \
+    core/src/test/java/org/powermock/core/transformers/impl/ClassMockTransformerTest.java
+
+# Disable modules that we cannot build (yet).
+python3 /usr/share/java-utils/pom_editor.py pom_disable_module module-test modules
+python3 /usr/share/java-utils/pom_editor.py pom_disable_module junit4-legacy modules/module-impl
+python3 /usr/share/java-utils/pom_editor.py pom_disable_module junit4-rule-agent modules/module-impl
+python3 /usr/share/java-utils/pom_editor.py pom_disable_module junit3 modules/module-impl
+python3 /usr/share/java-utils/pom_editor.py pom_disable_module testng-agent modules/module-impl
+python3 /usr/share/java-utils/pom_editor.py pom_disable_module agent modules/module-impl
+python3 /usr/share/java-utils/pom_editor.py pom_disable_module examples
+python3 /usr/share/java-utils/pom_editor.py pom_disable_module release
+python3 /usr/share/java-utils/pom_editor.py pom_disable_module classloading-xstream classloading
+python3 /usr/share/java-utils/pom_editor.py pom_disable_module mockito2 api
+python3 /usr/share/java-utils/pom_editor.py pom_remove_plugin  :rat-maven-plugin
+python3 /usr/share/java-utils/pom_editor.py pom_remove_plugin  :maven-source-plugin
+python3 /usr/share/java-utils/pom_editor.py pom_xpath_remove   "pom:plugin[pom:artifactId='maven-javadoc-plugin']/pom:executions"
+
+python3 /usr/share/java-utils/mvn_package.py :powermock-core core
+python3 /usr/share/java-utils/mvn_package.py :powermock-classloading-base core
+python3 /usr/share/java-utils/mvn_package.py :powermock-classloading-objenesis core
+python3 /usr/share/java-utils/mvn_package.py :powermock-module-junit4 junit4
+python3 /usr/share/java-utils/mvn_package.py :powermock-module-junit4-rule junit4
+python3 /usr/share/java-utils/mvn_package.py :powermock-module-junit4-common junit4
+python3 /usr/share/java-utils/mvn_package.py :powermock-api-mockito api-mockito
+python3 /usr/share/java-utils/mvn_package.py :powermock-api-mockito-common api-mockito
+python3 /usr/share/java-utils/mvn_package.py :powermock-api-support api-support
+python3 /usr/share/java-utils/mvn_package.py :powermock-api-easymock api-easymock
+python3 /usr/share/java-utils/mvn_package.py :powermock-reflect reflect
+python3 /usr/share/java-utils/mvn_package.py :powermock-module-testng testng
+python3 /usr/share/java-utils/mvn_package.py :powermock-module-testng-common testng
+
+python3 /usr/share/java-utils/mvn_package.py org.powermock.tests: __noinstall
+
+# poms are not needed by anything
+python3 /usr/share/java-utils/mvn_package.py ::pom: __noinstall

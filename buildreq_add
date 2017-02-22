@@ -1,0 +1,24 @@
+# This file contains additional build requirements that did not get
+# picked up automatically. One name per line, no whitespace.
+jdk-cglib
+jdk-commons-logging
+jdk-easymock3
+jdk-felix
+jdk-felix-osgi-foundation
+jdk-glassfish-servlet-api
+jdk-hamcrest
+jdk-javassist
+jdk-junit4
+jdk-maven-common-artifact-filters
+jdk-maven-compiler-plugin
+jdk-maven-filtering
+jdk-maven-jar-plugin
+jdk-maven-plugin-tools
+jdk-maven-resources-plugin
+jdk-maven-shared-incremental
+jdk-mockito
+jdk-objenesis
+jdk-plexus-compiler
+jdk-sonatype-oss-parent
+jdk-surefire
+jdk-testng
